@@ -833,7 +833,8 @@
         </div>
 
         <!-- Slide 12: Datos Clave -->
-        <div class="slide">
+        <!-- Slide 12: Datos Clave -->
+        <div class="slide" style="overflow-y: auto; height: 100vh;">
             <h2><i class='bx bx-data'></i> Indicadores Macroeconómicos Clave (2025)</h2>
             <div class="chart-container animate-in">
                 <canvas id="macroChart"></canvas>
@@ -856,9 +857,9 @@
                     <div class="label">Meta Inflación</div>
                 </div>
             </div>
-            <div class="content-box animate-in" style="margin-top: 30px;">
+            <div class="content-box animate-in" style="margin-top: 30px; min-height: 200px;">
                 <h3><i class='bx bx-line-chart'></i> Análisis de Divergencia 2025</h3>
-                <ul>
+                <ul style="max-height: none; overflow: visible;">
                     <li><strong>FED:</strong> Recortó 25 pb en septiembre → postura más acomodaticia, expectativas de moderación inflacionaria</li>
                     <li><strong>BoE:</strong> Mantuvo Bank Rate en 4.25% → postura restrictiva persistente por inflación doméstica 3.8%</li>
                     <li><strong>Implicación:</strong> Reino Unido enfrenta mayor presión para controlar inflación vs EE.UU. con mayor margen para estimular crecimiento</li>
@@ -931,30 +932,31 @@
         <!-- Slide 15: Gracias -->
             <!-- Slide 15: Gracias -->
             <!-- Slide 15: Gracias -->
-        <div class="slide slide-cover">
-            <h1>¡Gracias por su atención!</h1>
-            <div style="margin-top: 50px;">
-                <p style="font-size: 1.3em; color: var(--light); margin-bottom: 20px;">Análisis Comparativo de Política Monetaria Global</p>
-                <p style="font-size: 1.5em; color: var(--secondary);">Banco de Inglaterra vs Reserva Federal</p>
+        <!-- Slide 15: Gracias -->
+    <div class="slide slide-cover">
+        <h1 style="font-size: 3em; color: #FFFFFF !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">¡Gracias por su atención!</h1>
+        <div style="margin-top: 50px;">
+            <p style="font-size: 1.3em; color: #FFFFFF !important; margin-bottom: 20px; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">Análisis Comparativo de Política Monetaria Global</p>
+            <p style="font-size: 1.5em; color: #B5985D !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">Banco de Inglaterra vs Reserva Federal</p>
+        </div>
+        <div style="margin-top: 80px; display: flex; justify-content: center; gap: 50px;">
+            <div style="text-align: center;">
+                <i class='bx bx-building-house' style="font-size: 3em; margin-bottom: 10px; color: #B5985D !important;"></i>
+                <p style="color: #FFFFFF !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">BoE</p>
             </div>
-            <div style="margin-top: 80px; display: flex; justify-content: center; gap: 50px;">
-                <div style="text-align: center;">
-                    <i class='bx bx-building-house' style="font-size: 3em; margin-bottom: 10px; color: var(--secondary);"></i>
-                    <p style="color: var(--light);">BoE</p>
-                </div>
-                <div style="font-size: 3em; color: var(--secondary);"><i class='bx bx-balance'></i></div>
-                <div style="text-align: center;">
-                    <i class='bx bx-landmark' style="font-size: 3em; margin-bottom: 10px; color: var(--secondary);"></i>
-                    <p style="color: var(--light);">FED</p>
-                </div>
-            </div>
-            <p style="margin-top: 60px; font-size: 1em; color: var(--light);">
-                Octubre 2025 • Análisis Económico Avanzado
-            </p>
-            <div style="margin-top: 40px; padding: 20px; background: rgba(255,255,255,0.2); border-radius: 10px; backdrop-filter: blur(10px);">
-                <h3 style="color: var(--secondary); text-align: center; font-size: 1.8em;">¿Preguntas?</h3>
+            <div style="font-size: 3em; color: #B5985D !important;"><i class='bx bx-balance'></i></div>
+            <div style="text-align: center;">
+                <i class='bx bx-landmark' style="font-size: 3em; margin-bottom: 10px; color: #B5985D !important;"></i>
+                <p style="color: #FFFFFF !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">FED</p>
             </div>
         </div>
+        <p style="margin-top: 60px; font-size: 1em; color: #FFFFFF !important; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);">
+            Octubre 2025 • Análisis Económico Avanzado
+        </p>
+        <div style="margin-top: 40px; padding: 20px; background: rgba(255,255,255,0.2); border-radius: 10px; backdrop-filter: blur(10px);">
+            <h3 style="color: #B5985D !important; text-align: center; font-size: 1.8em; text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">¿Preguntas?</h3>
+        </div>
+    </div>
     </div>
 
     <!-- Navegación -->
@@ -998,11 +1000,9 @@
 
             // Actualizar botones
             document.getElementById('prevBtn').disabled = currentSlide === 0;
-           document.getElementById('nextBtn').disabled = currentSlide >= totalSlides - 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
 
-            if (currentSlide >= totalSlides) {
-                    currentSlide = totalSlides - 1;
-                }
+            
 
             // Inicializar gráficos cuando se llega a su slide
             if (currentSlide === 6) initRatesChart();
