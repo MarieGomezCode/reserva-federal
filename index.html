@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banco de Inglaterra vs Reserva Federal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #8C1515; /* Rojo Harvard */
+            --secondary: #B5985D; /* Dorado Cambridge */
+            --accent: #003366; /* Azul marino */
+            --light: #FFFFFF; /* Blanco */
+            --dark: #333333; /* Gris oscuro */
+            --background: #F8F5F0; /* Beige claro */
+            --card-bg: #FFFFFF; /* Fondo de tarjetas */
+            --text: #333333; /* Texto principal */
+            --text-light: #666666; /* Texto secundario */
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: var(--background);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .presentation-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 100%;
+            padding: 60px;
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: var(--background);
+        }
+
+        .slide.active {
+            left: 0;
+            opacity: 1;
+        }
+
+        .slide.prev {
+            left: -100%;
+            opacity: 0;
+        }
+
+        /* Portada */
+        .slide-cover {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            text-align: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-cover::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></svg>');
+            opacity: 0.3;
+        }
+
+        .slide-cover h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            color: var(--light);
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% { text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+            100% { text-shadow: 0 0 20px rgba(255,255,255,0.6); }
+        }
+
+        .slide-cover .subtitle {
+            font-size: 1.5em;
+            color: var(--secondary);
+            margin-bottom: 40px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .slide-cover .logos {
+            display: flex;
+            justify-content: center;
+            gap: 80px;
+            margin-top: 50px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.5s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .logo-box:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: var(--secondary);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .logo-box h3 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: var(--light);
+        }
+
+        .logo-box i {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            display: block;
+            color: var(--secondary);
+        }
+
+        /* Títulos de slides */
+        .slide h2 {
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 15px;
+            display: inline-block;
+            position: relative;
+        }
+
+        .slide h2::after {
+            content: "";
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, var(--primary), transparent);
+        }
+
+        /* Contenido en columnas */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 30px;
+        }
+
+        .content-box {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            transition: all 0.4s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-box::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--secondary);
+        }
+
+        .content-box:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .content-box h3 {
+            color: var(--accent);
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .content-box h3 i {
+            font-size: 1.2em;
+            color: var(--primary);
+        }
+
+        .content-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .content-box li {
+            padding: 10px 0;
+            padding-left: 25px;
+            position: relative;
+            line-height: 1.6;
+            color: var(--text);
+        }
+
+        .content-box li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-size: 1.2em;
+        }
+
+        /* Tabla comparativa */
+        .comparison-table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            padding: 20px;
+            text-align: left;
+            font-size: 1.1em;
+            color: var(--light);
+        }
+
+        .comparison-table td {
+            padding: 20px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(140, 21, 21, 0.05);
+        }
+
+        /* Gráficos */
+        .chart-container {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            height: 400px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Navegación */
+        .nav-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .nav-button {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5em;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .nav-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Indicador de slides */
+        .slide-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            background: var(--primary);
+            width: 30px;
+            border-radius: 6px;
+        }
+
+        /* Animaciones */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        /* Highlight boxes */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(140, 21, 21, 0.05), rgba(181, 152, 93, 0.05));
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 20px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            border: 2px solid var(--secondary);
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .stat-box .number {
+            font-size: 3em;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .stat-box .label {
+            font-size: 1.1em;
+            color: var(--text-light);
+            margin-top: 10px;
+        }
+
+        /* Crisis section */
+        .crisis-timeline {
+            margin-top: 30px;
+        }
+
+        .crisis-item {
+            background: var(--card-bg);
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border-left: 5px solid var(--secondary);
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .crisis-item:hover {
+            transform: translateX(15px);
+            background: rgba(181, 152, 93, 0.05);
+        }
+
+        .crisis-item h4 {
+            color: var(--accent);
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Stickers */
+        .sticker {
+            position: absolute;
+            opacity: 0.1;
+            z-index: 0;
+            transition: all 0.5s;
+        }
+
+        .sticker:hover {
+            opacity: 0.3;
+        }
+
+        .sticker-1 {
+            top: 10%;
+            left: 5%;
+            width: 150px;
+            height: 150px;
+            background: url('https://cdn.pixabay.com/photo/2016/03/31/19/56/avatar-1295397_960_720.png') center/contain no-repeat;
+        }
+
+        .sticker-2 {
+            bottom: 10%;
+            right: 5%;
+            width: 120px;
+            height: 120px;
+            background: url('https://cdn.pixabay.com/photo/2016/03/31/20/11/avatar-1295575_960_720.png') center/contain no-repeat;
+        }
+
+        .sticker-3 {
+            top: 20%;
+            right: 10%;
+            width: 100px;
+            height: 100px;
+            background: url('https://cdn.pixabay.com/photo/2016/03/31/20/31/avatar-1297259_960_720.png') center/contain no-repeat;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .slide {
+                padding: 30px;
+            }
+            
+            .slide-cover h1 {
+                font-size: 2em;
+            }
+            
+            .slide h2 {
+                font-size: 1.8em;
+            }
+            
+            .slide-cover .logos {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .sticker {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Stickers decorativos -->
+        <!--<div class="sticker sticker-1"></div>
+        <div class="sticker sticker-2"></div>
+        <div class="sticker sticker-3"></div>-->
+
+        <!-- Slide 1: Portada -->
+        <div class="slide slide-cover active">
+            <h1>Análisis Comparativo de Política Monetaria Global</h1>
+            <p class="subtitle">Banco de Inglaterra vs Reserva Federal de Estados Unidos</p>
+            <div class="logos">
+                <div class="logo-box">
+                    <i class='bx bx-building-house'></i>
+                    <h3>BoE</h3>
+                    <p>Bank of England</p>
+                    <p style="font-size: 0.9em; color: var(--light); margin-top: 10px;">Reino Unido</p>
+                </div>
+                <div class="logo-box">
+                    <i class='bx bx-landmark'></i>
+                    <h3>FED</h3>
+                    <p>Federal Reserve</p>
+                    <p style="font-size: 0.9em; color: var(--light); margin-top: 10px;">Estados Unidos</p>
+                </div>
+            </div>
+            <p style="margin-top: 60px; font-size: 1.1em; color: var(--light);">Estructura • Instrumentos • Resiliencia • Impacto Global</p>
+        </div>
+
+        <!-- Slide 2: Estructura BoE -->
+        <div class="slide">
+            <h2><i class='bx bx-analyse'></i> Estructura Organizativa del Banco de Inglaterra</h2>
+            <div class="content-grid">
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-group'></i> Comité de Política Monetaria (MPC)</h3>
+                    <ul>
+                        <li><strong>9 miembros clave:</strong> Gobernador, 3 Subgobernadores, Economista Jefe, 4 miembros externos</li>
+                        <li><strong>Reuniones:</strong> 8 veces al año (cada 6 semanas)</li>
+                        <li><strong>Representante del Tesoro:</strong> Sin derecho a voto, asegura comunicación fiscal</li>
+                    </ul>
+                </div>
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-user-circle'></i> Liderazgo y Gobernanza</h3>
+                    <ul>
+                        <li>Gobernador principal</li>
+                        <li>Subgobernador de Política Monetaria</li>
+                        <li>Subgobernador de Estabilidad Financiera</li>
+                        <li>Subgobernador de Mercados, Banca y Resolución</li>
+                        <li>Subgobernador de Regulación Prudencial</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box animate-in" style="margin-top: 30px;">
+                <strong><i class='bx bx-bulb'></i> Característica distintiva:</strong> Inclusión de 4 miembros externos designados por el Canciller del Tesoro para asegurar diversidad de pensamiento y perspectivas ajenas al BoE.
+            </div>
+        </div>
+
+        <!-- Slide 3: Mandato BoE -->
+        <div class="slide">
+            <h2><i class='bx bx-target-lock'></i> Mandato y Objetivos del BoE</h2>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; margin-top: 40px;">
+                <div class="stat-box animate-in">
+                    <div class="number">2%</div>
+                    <div class="label">Meta de Inflación IPC</div>
+                </div>
+                <div class="stat-box animate-in">
+                    <div class="number">3.8%</div>
+                    <div class="label">Inflación Actual (2025)</div>
+                </div>
+                <div class="stat-box animate-in">
+                    <div class="number">4.25%</div>
+                    <div class="label">Bank Rate (Jun 2025)</div>
+                </div>
+            </div>
+            <div class="content-grid" style="margin-top: 40px;">
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-trending-up'></i> Mandato Principal</h3>
+                    <p><strong>Estabilidad de Precios</strong></p>
+                    <ul>
+                        <li>Meta del 2% de inflación a medio plazo</li>
+                        <li>Objetivo fijado por el Gobierno</li>
+                        <li>Prioridad absoluta sobre otros objetivos</li>
+                    </ul>
+                </div>
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-line-chart'></i> Mandato Secundario</h3>
+                    <p><strong>Apoyo al Crecimiento</strong></p>
+                    <ul>
+                        <li>Sujeto al cumplimiento del mandato principal</li>
+                        <li>Crecimiento fuerte, sostenible y equilibrado</li>
+                        <li>Subordinado a la estabilidad de precios</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box animate-in" style="margin-top: 30px;">
+                <strong><i class='bx bx-balance'></i> Jerarquía Clara:</strong> A diferencia del Mandato Dual de la FED, el BoE tiene un mandato jerárquico donde la inflación prevalece sobre el crecimiento en situaciones de disyuntiva.
+            </div>
+        </div>
+
+        <!-- Slide 4: Instrumentos BoE -->
+        <div class="slide">
+            <h2><i class='bx bx-cog'></i> Instrumentos de Política Monetaria del BoE</h2>
+            <div class="content-grid">
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-dollar-circle'></i> Bank Rate (Tasa Bancaria)</h3>
+                    <ul>
+                        <li><strong>Definición:</strong> Tasa de interés sobre depósitos overnight de bancos comerciales</li>
+                        <li><strong>Nivel actual:</strong> 4.25% (junio 2025)</li>
+                        <li><strong>Transmisión:</strong> Influye directamente en tasas de préstamos e hipotecas</li>
+                        <li><strong>Efecto:</strong> Controla gasto agregado y demanda doméstica</li>
+                    </ul>
+                </div>
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-trending-down'></i> Expansión Cuantitativa (QE)</h3>
+                    <ul>
+                        <li>Compra de bonos del gobierno (gilts)</li>
+                        <li>Reduce tasas de interés a largo plazo</li>
+                        <li>Utilizado cuando Bank Rate cerca de cero</li>
+                        <li>Estimula economía aumentando precios de activos</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="content-box animate-in" style="margin-top: 30px;">
+                <h3><i class='bx bx-trending-up'></i> Contracción Cuantitativa (QT)</h3>
+                <p style="margin-bottom: 15px;">Proceso inverso al QE, mediante no reinversión o venta activa de bonos.</p>
+                <div class="highlight-box">
+                    <strong><i class='bx bx-target-lock'></i> Objetivo distintivo del BoE:</strong> No busca primariamente influir en tasas o inflación a corto plazo, sino restablecer la capacidad operativa para implementar QE nuevamente en el futuro.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Crisis Económicas -->
+        <div class="slide">
+            <h2><i class='bx bx-first-aid'></i> Respuestas del BoE ante Crisis Recientes</h2>
+            <div class="crisis-timeline">
+                <div class="crisis-item animate-in">
+                    <h4><i class='bx bx-virus'></i> Crisis COVID-19 (2020)</h4>
+                    <p><strong>Instrumento:</strong> Term Funding Scheme with additional incentives for SMEs (TFSME)</p>
+                    <ul style="margin-top: 15px;">
+                        <li>Financiación a 4 años a tasas cercanas al 0.1%</li>
+                        <li>Financiación adicional para bancos que aumentaran préstamos a PYMEs</li>
+                        <li>Aseguró transmisión de política monetaria y disponibilidad de crédito</li>
+                    </ul>
+                </div>
+                <div class="crisis-item animate-in">
+                    <h4><i class='bx bx-error-circle'></i> Crisis de Liquidez LDI (Septiembre 2022)</h4>
+                    <p><strong>Causa:</strong> "Mini-presupuesto" fiscal irresponsable → aumento drástico de rendimientos de gilts</p>
+                    <ul style="margin-top: 15px;">
+                        <li><strong>Vulnerabilidad:</strong> Fondos de pensiones con estrategias LDI apalancadas (poseen 28% del mercado de gilts)</li>
+                        <li><strong>Contagio:</strong> Pérdidas masivas → margin calls → venta forzada → espiral de desapalancamiento</li>
+                        <li><strong>Intervención:</strong> Compra temporal de gilts (28 septiembre 2022) para evitar colapso sistémico</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box animate-in">
+                <strong><i class='bx bx-confused'></i> Conflicto de Mandatos:</strong> El BoE subía tasas para combatir inflación mientras compraba bonos para estabilidad financiera. Demostró que ante riesgo sistémico, la estabilidad financiera prevalece temporalmente.
+            </div>
+        </div>
+
+        <!-- Slide 6: Comparación Estructural -->
+        <div class="slide">
+            <h2><i class='bx bx-notepad'></i> Comparación Estructural: BoE vs FED</h2>
+            <table class="comparison-table animate-in">
+                <tr>
+                    <th>Característica</th>
+                    <th>Banco de Inglaterra (BoE)</th>
+                    <th>Reserva Federal (FED)</th>
+                </tr>
+                <tr>
+                    <td><strong>Estructura de Decisión</strong></td>
+                    <td>MPC - 9 miembros</td>
+                    <td>FOMC - 12 miembros votantes</td>
+                </tr>
+                <tr>
+                    <td><strong>Mandato</strong></td>
+                    <td>Jerárquico: Inflación 2% primero, luego crecimiento</td>
+                    <td>Dual: Máximo empleo + precios estables (2% PCE)</td>
+                </tr>
+                <tr>
+                    <td><strong>Autonomía de Objetivos</strong></td>
+                    <td>Meta fijada por el Gobierno</td>
+                    <td>Mandato establecido por el Congreso</td>
+                </tr>
+                <tr>
+                    <td><strong>Tasa de Referencia</strong></td>
+                    <td>Bank Rate: 4.25% (jun 2025)</td>
+                    <td>Fed Funds Rate: 4.00-4.25% (sep 2025)</td>
+                </tr>
+                <tr>
+                    <td><strong>Mecanismo de Control</strong></td>
+                    <td>Bank Rate (tasa única sobre reservas)</td>
+                    <td>IORB + ON RRP (sistema de corredor)</td>
+                </tr>
+            </table>
+            <div class="highlight-box animate-in" style="margin-top: 30px;">
+                <strong><i class='bx bx-key'></i> Diferencia clave:</strong> La FED tiene flexibilidad para priorizar empleo en bajo crecimiento sin perder foco en inflación. El BoE constitucionalmente debe priorizar inflación incluso si ralentiza crecimiento.
+            </div>
+        </div>
+
+        <!-- Slide 7: Instrumentos Comparados -->
+        <div class="slide">
+            <h2><i class='bx bx-bar-chart-alt'></i> Instrumentos de Política Monetaria Comparados</h2>
+            <div class="chart-container animate-in">
+                <canvas id="ratesChart"></canvas>
+            </div>
+            <div class="content-grid" style="margin-top: 30px;">
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-building-house'></i> BoE: Sistema Simplificado</h3>
+                    <ul>
+                        <li><strong>Bank Rate:</strong> Tasa única sobre reservas overnight</li>
+                        <li>Actúa como piso del mercado monetario</li>
+                        <li>QE/QT como herramienta complementaria</li>
+                    </ul>
+                </div>
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-landmark'></i> FED: Sistema de Corredor</h3>
+                    <ul>
+                        <li><strong>IORB:</strong> Presión al alza (techo)</li>
+                        <li><strong>ON RRP:</strong> Piso efectivo para tasas overnight</li>
+                        <li>Mantiene Fed Funds Rate en rango objetivo</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Impacto Global -->
+        <div class="slide">
+            <h2><i class='bx bx-globe'></i> Influencia Global Asimétrica</h2>
+            <div class="content-grid">
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-world'></i> FED: Generador de Condiciones Globales</h3>
+                    <ul>
+                        <li><strong>Dólar = Moneda de reserva mundial</strong></li>
+                        <li>Decisiones de tasas y QE/QT exportan condiciones financieras globalmente</li>
+                        <li>Influencia masiva en flujos de capital hacia países emergentes</li>
+                        <li>Presión sobre políticas monetarias de otros bancos centrales</li>
+                    </ul>
+                    <div class="highlight-box" style="margin-top: 20px;">
+                        <strong><i class='bx bx-data'></i> Dato clave:</strong> Aumento de 100 pb en tasa real Treasury 10Y → caída de ~2% del PIB en entradas de capital a PE en 6 trimestres
+                    </div>
+                </div>
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-shield-quarter'></i> BoE: Mitigador de Riesgos Globales</h3>
+                    <ul>
+                        <li>Influencia primordialmente doméstica</li>
+                        <li>Receptor de volatilidad generada por FED y shocks geopolíticos</li>
+                        <li>Centro financiero de Londres importante, pero impacto limitado en tendencias globales</li>
+                        <li>Enfoque en resiliencia doméstica ante shocks externos</li>
+                    </ul>
+                    <div class="highlight-box" style="margin-top: 20px;">
+                        <strong><i class='bx bx-error-alt'></i> Vulnerabilidad:</strong> Economía abierta del Reino Unido expuesta a fragmentación global y barreras comerciales
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Taper Tantrum -->
+        <div class="slide">
+            <h2><i class='bx bx-line-chart-down'></i> Caso de Estudio: Taper Tantrum (2013)</h2>
+            <div class="highlight-box animate-in">
+                <h3 style="color: var(--primary); margin-bottom: 15px;"><i class='bx bx-analyse'></i> El Fenómeno</h3>
+                <p><strong>Detonante:</strong> Mero anuncio de la FED de reducir compras de bonos (tapering del QE)</p>
+            </div>
+            <div class="content-grid" style="margin-top: 30px;">
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-trending-down'></i> Impacto en Países Emergentes</h3>
+                    <ul>
+                        <li>Aumento drástico y desordenado de rendimientos de bonos</li>
+                        <li>Salida masiva de capitales</li>
+                        <li>Presión sobre tipos de cambio</li>
+                        <li>Mayor volatilidad en mercados financieros</li>
+                    </ul>
+                </div>
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-map'></i> Países Más Afectados</h3>
+                    <ul>
+                        <li><strong>Turquía:</strong> Déficit en cuenta corriente</li>
+                        <li><strong>Sudáfrica:</strong> Problemas inflacionarios internos</li>
+                        <li><strong>Brasil:</strong> Debilidades estructurales</li>
+                        <li><strong>América Latina:</strong> Rendimientos respondieron con más intensidad que bonos de EE.UU.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="chart-container animate-in" style="margin-top: 30px; height: 300px;">
+                <canvas id="taperChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Slide 10: Nuevo Gráfico - Inflación Comparada -->
+        <div class="slide">
+            <h2><i class='bx bx-stats'></i> Comparativa de Inflación y Política Monetaria</h2>
+            <div class="chart-container animate-in">
+                <canvas id="inflationChart"></canvas>
+            </div>
+            <div class="content-grid" style="margin-top: 30px;">
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-trending-up'></i> Contexto Inflacionario</h3>
+                    <ul>
+                        <li><strong>Reino Unido:</strong> Inflación más persistente (3.8% vs meta 2%)</li>
+                        <li><strong>EE.UU.:</strong> Inflación más controlada (2.4% vs meta 2%)</li>
+                        <li><strong>Divergencia:</strong> BoE mantiene postura restrictiva, FED inicia recortes</li>
+                    </ul>
+                </div>
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-line-chart'></i> Implicaciones de Política</h3>
+                    <ul>
+                        <li><strong>BoE:</strong> Prioridad en control inflacionario</li>
+                        <li><strong>FED:</strong> Mayor flexibilidad para estimular crecimiento</li>
+                        <li><strong>Mercados:</strong> Expectativas diferenciadas sobre futuras tasas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Conclusiones -->
+        <div class="slide">
+            <h2><i class='bx bx-check-double'></i> Conclusiones y Reflexión Final</h2>
+            <div class="content-grid">
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-building-house'></i> Banco de Inglaterra</h3>
+                    <ul>
+                        <li><strong>Resiliencia demostrada:</strong> Respuestas efectivas a COVID-19 y crisis LDI 2022</li>
+                        <li><strong>Vulnerabilidad crítica:</strong> Supervisión del sector financiero no bancario (shadow banking)</li>
+                        <li><strong>Influencia doméstica:</strong> Bank Rate 4.25% controla gasto y endeudamiento</li>
+                        <li><strong>Prioridad inflación:</strong> 3.8% actual requiere mantener restricción monetaria</li>
+                        <li><strong>Rol global:</strong> Mitigador de riesgos, no dictador de tendencias</li>
+                    </ul>
+                </div>
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-landmark'></i> Reserva Federal</h3>
+                    <ul>
+                        <li><strong>Poder hegemónico:</strong> Custodio del dólar como moneda de reserva mundial</li>
+                        <li><strong>Influencia asimétrica:</strong> Exporta condiciones financieras globalmente</li>
+                        <li><strong>Flexibilidad:</strong> Mandato Dual permite balance empleo-inflación</li>
+                        <li><strong>Impacto PE:</strong> Factor exógeno #1 de riesgo macroeconómico</li>
+                        <li><strong>Divergencia 2025:</strong> Recortes a 4.00-4.25% mientras BoE mantiene 4.25%</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box animate-in" style="margin-top: 30px;">
+                <h3 style="color: var(--primary); margin-bottom: 15px;"><i class='bx bx-bulb'></i> Reflexión Final</h3>
+                <p style="font-size: 1.1em; line-height: 1.8;">
+                    El BoE es un banco central <strong>sofisticado y reactivo</strong>, con alta autonomía operacional pero limitado por un mandato jerárquico fijado por el Ejecutivo. Su función global es primordialmente <strong>defensiva</strong>: gestionar shocks de liquidez y tendencias de tasas impulsadas por el ciclo monetario de la FED. 
+                </p>
+                <p style="font-size: 1.1em; line-height: 1.8; margin-top: 15px;">
+                    En contraste, la FED ejerce <strong>poder estructural incomparable</strong> sobre la economía mundial debido al estatus hegemónico del dólar, convirtiendo sus decisiones en <strong>eventos sistémicos globales</strong> que condicionan la política monetaria de bancos centrales de todo el mundo.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 12: Datos Clave -->
+        <div class="slide">
+            <h2><i class='bx bx-data'></i> Indicadores Macroeconómicos Clave (2025)</h2>
+            <div class="chart-container animate-in">
+                <canvas id="macroChart"></canvas>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 40px;">
+                <div class="stat-box animate-in">
+                    <div class="number">4.25%</div>
+                    <div class="label">BoE Bank Rate</div>
+                </div>
+                <div class="stat-box animate-in">
+                    <div class="number">4.0-4.25%</div>
+                    <div class="label">FED Funds Rate</div>
+                </div>
+                <div class="stat-box animate-in">
+                    <div class="number">3.8%</div>
+                    <div class="label">UK Inflación IPC</div>
+                </div>
+                <div class="stat-box animate-in">
+                    <div class="number">2.0%</div>
+                    <div class="label">Meta Inflación</div>
+                </div>
+            </div>
+            <div class="content-box animate-in" style="margin-top: 30px;">
+                <h3><i class='bx bx-line-chart'></i> Análisis de Divergencia 2025</h3>
+                <ul>
+                    <li><strong>FED:</strong> Recortó 25 pb en septiembre → postura más acomodaticia, expectativas de moderación inflacionaria</li>
+                    <li><strong>BoE:</strong> Mantuvo Bank Rate en 4.25% → postura restrictiva persistente por inflación doméstica 3.8%</li>
+                    <li><strong>Implicación:</strong> Reino Unido enfrenta mayor presión para controlar inflación vs EE.UU. con mayor margen para estimular crecimiento</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 13: Lecciones Aprendidas -->
+        <div class="slide">
+            <h2><i class='bx bx-book-open'></i> Lecciones y Desafíos Futuros</h2>
+            <div class="content-grid">
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-book'></i> Lecciones de la Crisis LDI (2022)</h3>
+                    <ul>
+                        <li><strong>Sector financiero no bancario:</strong> Requiere supervisión prudencial fortalecida</li>
+                        <li><strong>Apalancamiento excesivo:</strong> Estrategias LDI generaron vulnerabilidades sistémicas</li>
+                        <li><strong>Política fiscal irresponsable:</strong> Puede desencadenar crisis de liquidez y obligar intervención del banco central</li>
+                        <li><strong>Conflicto de mandatos:</strong> Tensión entre estabilidad financiera y control de inflación</li>
+                    </ul>
+                </div>
+                <div class="content-box animate-in">
+                    <h3><i class='bx bx-world'></i> Desafíos Globales</h3>
+                    <ul>
+                        <li><strong>Fragmentación comercial:</strong> Aumento de barreras incrementa incertidumbre inflacionaria</li>
+                        <li><strong>Economía abierta UK:</strong> Mayor exposición a interrupciones de flujos de capital</li>
+                        <li><strong>Volatilidad FED:</strong> Países emergentes requieren fundamentos sólidos como defensa</li>
+                        <li><strong>Divergencia temporal:</strong> PE alcanzarán metas inflacionarias después que economías avanzadas</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box animate-in" style="margin-top: 30px;">
+                <strong><i class='bx bx-trending-up'></i> Proyección:</strong> El BoE espera que la inflación regrese al 2% después de un ligero aumento transitorio en 2025. El crecimiento fuerte y sostenible solo será posible una vez restablecida la estabilidad de precios.
+            </div>
+        </div>
+
+        <!-- Slide 14: Referencias -->
+        <div class="slide">
+            <h2><i class='bx bx-book'></i> Referencias Bibliográficas</h2>
+            <div style="columns: 2; column-gap: 40px; font-size: 0.9em;">
+                <div class="content-box animate-in" style="break-inside: avoid; margin-bottom: 20px;">
+                    <h4 style="color: var(--primary); margin-bottom: 10px;">Fuentes Oficiales</h4>
+                    <ul style="list-style: decimal; padding-left: 20px;">
+                        <li>Bank of England - Organogram (June 2025)</li>
+                        <li>Bank of England - Monetary Policy Overview</li>
+                        <li>Bank of England - Monetary Policy Committee</li>
+                        <li>Federal Reserve Board - Monetary Policy Goals</li>
+                        <li>Bank of England - Bank Rate Decision (June 2025)</li>
+                        <li>Bank of England - Monetary Policy Report (August 2025)</li>
+                    </ul>
+                </div>
+                <div class="content-box animate-in" style="break-inside: avoid; margin-bottom: 20px;">
+                    <h4 style="color: var(--primary); margin-bottom: 10px;">Estudios y Análisis</h4>
+                    <ul style="list-style: decimal; padding-left: 20px;">
+                        <li>Economics Observatory - Central Banks Response to COVID</li>
+                        <li>State Street - The UK LDI Crisis</li>
+                        <li>Federal Reserve Bank of Chicago - UK Pension Market Stress (2023)</li>
+                        <li>IMF - Taper Tantrum Analysis (2014)</li>
+                        <li>Trading Economics - UK Inflation Rate & US Fed Funds Rate (2025)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="highlight-box animate-in" style="margin-top: 30px;">
+                <p style="text-align: center; font-size: 1.1em;">
+                    <strong><i class='bx bx-book-open'></i> Análisis basado en documentos oficiales de bancos centrales,</strong><br>
+                    informes económicos y datos actualizados a 2025
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 15: Gracias -->
+            <!-- Slide 15: Gracias -->
+            <!-- Slide 15: Gracias -->
+        <div class="slide slide-cover">
+            <h1>¡Gracias por su atención!</h1>
+            <div style="margin-top: 50px;">
+                <p style="font-size: 1.3em; color: var(--light); margin-bottom: 20px;">Análisis Comparativo de Política Monetaria Global</p>
+                <p style="font-size: 1.5em; color: var(--secondary);">Banco de Inglaterra vs Reserva Federal</p>
+            </div>
+            <div style="margin-top: 80px; display: flex; justify-content: center; gap: 50px;">
+                <div style="text-align: center;">
+                    <i class='bx bx-building-house' style="font-size: 3em; margin-bottom: 10px; color: var(--secondary);"></i>
+                    <p style="color: var(--light);">BoE</p>
+                </div>
+                <div style="font-size: 3em; color: var(--secondary);"><i class='bx bx-balance'></i></div>
+                <div style="text-align: center;">
+                    <i class='bx bx-landmark' style="font-size: 3em; margin-bottom: 10px; color: var(--secondary);"></i>
+                    <p style="color: var(--light);">FED</p>
+                </div>
+            </div>
+            <p style="margin-top: 60px; font-size: 1em; color: var(--light);">
+                Octubre 2025 • Análisis Económico Avanzado
+            </p>
+            <div style="margin-top: 40px; padding: 20px; background: rgba(255,255,255,0.2); border-radius: 10px; backdrop-filter: blur(10px);">
+                <h3 style="color: var(--secondary); text-align: center; font-size: 1.8em;">¿Preguntas?</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación -->
+    <div class="nav-buttons">
+        <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)"><i class='bx bx-chevron-left'></i></button>
+        <button class="nav-button" id="nextBtn" onclick="changeSlide(1)"><i class='bx bx-chevron-right'></i></button>
+    </div>
+
+    <!-- Indicadores -->
+    <div class="slide-indicator" id="slideIndicator"></div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        // Crear indicadores
+        const indicator = document.getElementById('slideIndicator');
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'dot';
+            if (i === 0) dot.classList.add('active');
+            dot.onclick = () => goToSlide(i);
+            indicator.appendChild(dot);
+        }
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active', 'prev');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else if (index < currentSlide) {
+                    slide.classList.add('prev');
+                }
+            });
+
+            // Actualizar indicadores
+            document.querySelectorAll('.dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+
+            // Actualizar botones
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+           document.getElementById('nextBtn').disabled = currentSlide >= totalSlides - 1;
+
+            if (currentSlide >= totalSlides) {
+                    currentSlide = totalSlides - 1;
+                }
+
+            // Inicializar gráficos cuando se llega a su slide
+            if (currentSlide === 6) initRatesChart();
+            if (currentSlide === 8) initTaperChart();
+            if (currentSlide === 9) initInflationChart();
+            if (currentSlide === 11) initMacroChart();
+        }
+
+        function changeSlide(direction) {
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = 0;
+            if (currentSlide >= totalSlides) currentSlide = totalSlides - 1;
+            updateSlide();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlide();
+        }
+
+        // Navegación con teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+        });
+
+        // Gráfico de Tasas de Interés
+        let ratesChart = null;
+        function initRatesChart() {
+            if (ratesChart) return;
+            const ctx = document.getElementById('ratesChart');
+            if (!ctx) return;
+            
+            ratesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Ene 24', 'Mar 24', 'May 24', 'Jul 24', 'Sep 24', 'Nov 24', 'Ene 25', 'Mar 25', 'May 25', 'Sep 25'],
+                    datasets: [{
+                        label: 'BoE Bank Rate',
+                        data: [5.25, 5.25, 5.25, 5.00, 5.00, 4.75, 4.75, 4.50, 4.25, 4.25],
+                        borderColor: '#B5985D',
+                        backgroundColor: 'rgba(181, 152, 93, 0.1)',
+                        tension: 0.4,
+                        borderWidth: 3
+                    }, {
+                        label: 'FED Funds Rate (Midpoint)',
+                        data: [5.38, 5.38, 5.38, 5.38, 5.00, 4.63, 4.38, 4.38, 4.38, 4.13],
+                        borderColor: '#8C1515',
+                        backgroundColor: 'rgba(140, 21, 21, 0.1)',
+                        tension: 0.4,
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#333333', font: { size: 14 } }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Evolución de Tasas de Interés 2024-2025',
+                            color: '#8C1515',
+                            font: { size: 18 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 4,
+                            max: 6,
+                            ticks: { 
+                                color: '#333333',
+                                callback: function(value) { return value + '%'; }
+                            },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#333333' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Gráfico Taper Tantrum
+        let taperChart = null;
+        function initTaperChart() {
+            if (taperChart) return;
+            const ctx = document.getElementById('taperChart');
+            if (!ctx) return;
+            
+            taperChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['EE.UU. (10Y)', 'Brasil', 'Turquía', 'Sudáfrica', 'India', 'Indonesia'],
+                    datasets: [{
+                        label: 'Aumento en Rendimientos de Bonos (%)',
+                        data: [1.3, 2.8, 3.5, 3.2, 2.1, 2.6],
+                        backgroundColor: [
+                            'rgba(0, 51, 102, 0.7)',
+                            'rgba(140, 21, 21, 0.7)',
+                            'rgba(140, 21, 21, 0.9)',
+                            'rgba(140, 21, 21, 0.8)',
+                            'rgba(181, 152, 93, 0.7)',
+                            'rgba(181, 152, 93, 0.7)'
+                        ],
+                        borderColor: [
+                            '#003366',
+                            '#8C1515',
+                            '#8C1515',
+                            '#8C1515',
+                            '#B5985D',
+                            '#B5985D'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Impacto del Taper Tantrum (2013) - Aumento en Rendimientos',
+                            color: '#8C1515',
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { 
+                                color: '#333333',
+                                callback: function(value) { return value + '%'; }
+                            },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#333333' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Nuevo gráfico de inflación
+        let inflationChart = null;
+        function initInflationChart() {
+            if (inflationChart) return;
+            const ctx = document.getElementById('inflationChart');
+            if (!ctx) return;
+            
+            inflationChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
+                    datasets: [{
+                        label: 'Inflación Reino Unido',
+                        data: [0.9, 2.5, 9.1, 7.9, 4.2, 3.8],
+                        borderColor: '#B5985D',
+                        backgroundColor: 'rgba(181, 152, 93, 0.1)',
+                        tension: 0.4,
+                        borderWidth: 3
+                    }, {
+                        label: 'Inflación Estados Unidos',
+                        data: [1.2, 4.7, 8.0, 4.1, 3.4, 2.4],
+                        borderColor: '#8C1515',
+                        backgroundColor: 'rgba(140, 21, 21, 0.1)',
+                        tension: 0.4,
+                        borderWidth: 3
+                    }, {
+                        label: 'Meta de Inflación',
+                        data: [2, 2, 2, 2, 2, 2],
+                        borderColor: '#003366',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#333333', font: { size: 14 } }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Evolución de la Inflación 2020-2025',
+                            color: '#8C1515',
+                            font: { size: 18 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            ticks: { 
+                                color: '#333333',
+                                callback: function(value) { return value + '%'; }
+                            },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#333333' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Gráfico Macroeconómico
+        let macroChart = null;
+        function initMacroChart() {
+            if (macroChart) return;
+            const ctx = document.getElementById('macroChart');
+            if (!ctx) return;
+            
+            macroChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Tasa de Política', 'Inflación Actual', 'Meta de Inflación'],
+                    datasets: [{
+                        label: 'Reino Unido (BoE)',
+                        data: [4.25, 3.8, 2.0],
+                        backgroundColor: 'rgba(181, 152, 93, 0.7)',
+                        borderColor: '#B5985D',
+                        borderWidth: 2
+                    }, {
+                        label: 'Estados Unidos (FED)',
+                        data: [4.125, 2.4, 2.0],
+                        backgroundColor: 'rgba(140, 21, 21, 0.7)',
+                        borderColor: '#8C1515',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#333333', font: { size: 14 } }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Comparación de Indicadores Clave (2025)',
+                            color: '#8C1515',
+                            font: { size: 18 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 5,
+                            ticks: { 
+                                color: '#333333',
+                                callback: function(value) { return value + '%'; }
+                            },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#333333' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Inicializar
+        updateSlide();
+    </script>
+</body>
+</html>
